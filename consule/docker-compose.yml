@@ -1,0 +1,209 @@
+version: '3.4'
+
+services:
+  lemoras.security.api:
+    image: ${DOCKER_REGISTRY-}lemorassecurityapi
+    build:
+      context: .
+      dockerfile: src/Services/Security/Dockerfile
+    depends_on:
+      - consul
+    container_name: lemoras.security.api 
+    environment:
+            - SERVERNAME=lemoras.security.api 
+    networks:
+          - "lemoras-network"
+
+  lemoras.securityadmin.api:
+    image: ${DOCKER_REGISTRY-}lemorassecurityadminapi
+    build:
+      context: .
+      dockerfile: src/Services/SecurityAdmin/Dockerfile
+    depends_on:
+      - consul
+    container_name: lemoras.securityadmin.api 
+    environment:
+            - SERVERNAME=lemoras.securityadmin.api 
+    networks:
+          - "lemoras-network"
+
+  lemoras.admin.api:
+    image: ${DOCKER_REGISTRY-}lemorasadminapi
+    build:
+      context: .
+      dockerfile: src/Services/Admin/Lemoras.Admin.Api/Dockerfile
+    depends_on:
+      - consul
+    container_name: lemoras.admin.api
+    environment:
+            - SERVERNAME=lemoras.admin.api 
+    networks:
+          - "lemoras-network"
+
+  lemoras.roomshare.api:
+    image: ${DOCKER_REGISTRY-}lemorasroomshareapi
+    build:
+      context: .
+      dockerfile: src/Services/Roomshare/Lemoras.Roomshare.Api/Dockerfile
+    depends_on:
+      - consul
+    container_name: lemoras.roomshare.api 
+    environment:
+            - SERVERNAME=lemoras.roomshare.api
+    networks:
+          - "lemoras-network"
+
+  lemoras.template.api:
+    image: ${DOCKER_REGISTRY-}lemorastemplateapi
+    build:
+      context: .
+      dockerfile: src/Services/Template/Lemoras.Template.Api/Dockerfile
+    depends_on:
+      - consul
+    container_name: lemoras.template.api 
+    environment:
+            - SERVERNAME=lemoras.template.api
+    networks:
+          - "lemoras-network"
+
+  lemoras.customer.api:
+    image: ${DOCKER_REGISTRY-}lemorascustomerapi
+    build:
+      context: .
+      dockerfile: src/Services/Customer/Lemoras.Customer.Api/Dockerfile
+    depends_on:
+      - consul
+    container_name: lemoras.customer.api 
+    environment:
+            - SERVERNAME=lemoras.customer.api
+    networks:
+          - "lemoras-network"
+
+  lemoras.definition.api:
+    image: ${DOCKER_REGISTRY-}lemorasdefinitionapi
+    build:
+      context: .
+      dockerfile: src/Services/Definition/Lemoras.Definition.Api/Dockerfile
+    depends_on:
+      - consul
+    container_name: lemoras.definition.api 
+    environment:
+            - SERVERNAME=lemoras.definition.api
+    networks:
+          - "lemoras-network"
+
+  lemoras.account.api:
+    image: ${DOCKER_REGISTRY-}lemorasaccountapi
+    build:
+      context: .
+      dockerfile: src/Services/Account/Lemoras.Account.Api/Dockerfile
+    depends_on:
+      - consul
+    container_name: lemoras.account.api 
+    environment:
+            - SERVERNAME=lemoras.account.api
+    networks:
+          - "lemoras-network"
+
+  lemoras.transaction.api:
+    image: ${DOCKER_REGISTRY-}lemorastransactionapi
+    build:
+      context: .
+      dockerfile: src/Services/Transaction/Lemoras.Transaction.Api/Dockerfile
+    depends_on:
+      - consul
+    container_name: lemoras.transaction.api 
+    environment:
+            - SERVERNAME=lemoras.transaction.api
+    networks:
+          - "lemoras-network"
+
+  lemoras.gateway.reverseproxy:
+      build:
+        context: .
+        dockerfile: src/Gateways/lemoras.Gateway.Api/Dockerfile
+      container_name: lemoras.gateway.reverseproxy
+      environment:
+            - SERVERNAME=lemoras.gateway.reverseproxy
+      networks:
+          - "lemoras-network"
+      depends_on:
+          - consul
+          - lemoras.security.api
+          - lemoras.template.api
+          - lemoras.admin.api
+          - lemoras.roomshare.api
+          - lemoras.account.api
+          - lemoras.customer.api
+          - lemoras.definition.api
+          - lemoras.transaction.api
+          - lemoras.securityadmin.api
+      restart: always
+      ports:
+          - "80:80"
+          
+  lemoras.gateway.base:
+      depends_on:
+          - lemoras.gateway.reverseproxy
+      image: nginx:alpine
+      networks:
+          - "lemoras-network"
+      container_name: lemoras.gateway.base
+      depends_on:
+          - consul
+          - lemoras.security.api
+          - lemoras.template.api
+          - lemoras.admin.api
+          - lemoras.roomshare.api
+          - lemoras.account.api
+          - lemoras.customer.api
+          - lemoras.definition.api
+          - lemoras.transaction.api
+          - lemoras.securityadmin.api
+      environment:
+            - SERVERNAME=lemoras.gateway.base
+
+  db:
+      image: postgres
+      environment:
+          POSTGRES_DB: lemoras-db
+          POSTGRES_USER: lemoras
+          POSTGRES_PASSWORD: supersecret
+      volumes:
+          - db-data:/var/lib/postgresql/data
+          - ./scripts/:/docker-entrypoint-initdb.d/
+      networks:
+          - "lemoras-network"
+      ports:
+          - 5432:5432
+      container_name: db
+      restart: always      
+
+#  lemoras.gateway.api:
+#    image: ${DOCKER_REGISTRY-}lemorasgatewayapi
+#    build:
+#      context: .
+#      dockerfile: src/Gateway/Lemoras.Alternative_Gateway.Api/Dockerfile
+#    container_name: apigateway
+#    depends_on:
+#      - consul
+#      - lemoras.security.api
+#      - lemoras.transaction.api
+#      - lemoras.admin.api
+#      - lemoras.roomshare.api
+#
+
+  consul:
+    image: consul:latest
+    command: consul agent -dev -log-level=warn -ui -client=0.0.0.0
+    hostname: consul
+    container_name: consul
+
+networks:
+  lemoras-network:
+    driver: bridge
+
+volumes:
+  db-data:
+    name: lemoras_db-data
+    driver: local

@@ -1,0 +1,32 @@
+var cursor = db.getCollection('foo').find({}, {});
+while(cursor.hasNext()) {
+    print(tojson(cursor.next()))
+}
+
+
+
+
+
+
+
+var collections = db.getCollectionNames();
+for(var i = 0; i < collections.length; i++){
+    if (i == 0)
+    { print("{"); }
+  var name = collections[i];
+print("\"" + name + "\": [");
+  var cursor = db.getCollection(name).find({}, {});
+while(cursor.hasNext()) {
+    print(tojson(cursor.next()))
+    if (cursor.hasNext())
+    {print(",");}
+}
+print("]");
+if (i != collections.length -1)
+{ print(","); }
+if (i == collections.length -1) { print("}"); }
+}
+
+
+
+

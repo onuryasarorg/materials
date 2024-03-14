@@ -1,0 +1,102 @@
+version: '3.4'
+
+services:
+  lemoras.security.api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ServiceConfig__serviceDiscoveryAddress=http://consul:8500
+      - ServiceConfig__serviceAddress=http://security:80
+      - ServiceConfig__serviceName=security
+      - ServiceConfig__serviceId=security-v1
+    ports:
+      - "80"
+
+  lemoras.securityadmin.api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ServiceConfig__serviceDiscoveryAddress=http://consul:8500
+      - ServiceConfig__serviceAddress=http://securityadmin:80
+      - ServiceConfig__serviceName=securityadmin
+      - ServiceConfig__serviceId=securityadmin-v1
+    ports:
+      - "80"
+
+  lemoras.admin.api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ServiceConfig__serviceDiscoveryAddress=http://admin:8500
+      - ServiceConfig__serviceAddress=http://admin:80
+      - ServiceConfig__serviceName=admin
+      - ServiceConfig__serviceId=admin-v1
+    ports:
+      - "80"
+
+  lemoras.roomshare.api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ServiceConfig__serviceDiscoveryAddress=http://roomshare:8500
+      - ServiceConfig__serviceAddress=http://roomshare:80
+      - ServiceConfig__serviceName=roomshare
+      - ServiceConfig__serviceId=roomshare-v1
+    ports:
+      - "80"
+
+  lemoras.template.api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ServiceConfig__serviceDiscoveryAddress=http://template:8500
+      - ServiceConfig__serviceAddress=http://template:80
+      - ServiceConfig__serviceName=template
+      - ServiceConfig__serviceId=template-v1
+    ports:
+      - "80"
+
+  lemoras.customer.api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ServiceConfig__serviceDiscoveryAddress=http://customer:8500
+      - ServiceConfig__serviceAddress=http://customer:80
+      - ServiceConfig__serviceName=customer
+      - ServiceConfig__serviceId=customer-v1
+    ports:
+      - "80"
+
+  lemoras.definition.api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ServiceConfig__serviceDiscoveryAddress=http://definition:8500
+      - ServiceConfig__serviceAddress=http://definition:80
+      - ServiceConfig__serviceName=definition
+      - ServiceConfig__serviceId=definition-v1
+    ports:
+      - "80"
+
+  lemoras.account.api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ServiceConfig__serviceDiscoveryAddress=http://account:8500
+      - ServiceConfig__serviceAddress=http://account:80
+      - ServiceConfig__serviceName=account
+      - ServiceConfig__serviceId=account-v1
+    ports:
+      - "80"
+
+  lemoras.transaction.api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ServiceConfig__serviceDiscoveryAddress=http://transaction:8500
+      - ServiceConfig__serviceAddress=http://transaction:80
+      - ServiceConfig__serviceName=transaction
+      - ServiceConfig__serviceId=transaction-v1
+    ports:
+      - "80"
+
+#  lemoras.gateway.api:
+#    environment:
+#      - ASPNETCORE_ENVIRONMENT=Development
+#    ports:
+#      - "80:80"
+#  
+  consul:
+    ports:
+      - "8500"

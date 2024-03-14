@@ -1,0 +1,81 @@
+version: '3.0'
+
+networks:
+
+  software:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
+services:
+    mariadb:
+        image: mariadb:10.2
+        ports:
+            - 3306:3306 
+        expose:
+            - 3306
+        environment: 
+            MYSQL_ROOT_HOST: '%'
+            MYSQL_ROOT_PASSWORD: dev_lemoras
+            MYSQL_DATABASE: dev_lemoras
+            MYSQL_USER: devlemoras
+            MYSQL_PASSWORD: devlemoras123
+            MYSQL_PORT: 3306
+        restart: on-failure        
+        volumes:
+            - ./database/data:/var/lib/mysql
+            - ./database/docker-sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+        container_name: dev_lemoras_database
+        networks:
+            software:
+                ipv4_address: 172.20.0.19
+    redis:
+        restart: on-failure   
+        image: redis
+        container_name: dev_lemoras_redis
+        ports:
+            - 6379:6379 
+        expose:
+            - 6379
+        networks:
+            software:
+                ipv4_address: 172.20.0.18
+    mongo:
+        restart: always
+        image: mongo:latest
+        container_name: "dev_lemoras_mongodb"
+        environment:
+            - MONGO_INITDB_ROOT_USERNAME=root
+            - MONGO_INITDB_ROOT_PASSWORD=onur_dev_112
+        volumes:
+            - ./database/mongodb:/data/db
+        ports:
+            - 27017:27017
+        networks:
+            software:
+                ipv4_address: 172.20.0.17
+    mongo_seed:
+        image: mongo:latest
+        links:
+            - mongo
+        volumes:
+            - ./database/mongodb/import.sh:/home/import.sh
+            - ./database/mongodb/config.json:/home/config.json
+        command: bash -c "chmod 0777 -R /home/import.sh && chmod 0777 -R /home/config.json && /home/import.sh" # --quiet
+        networks:
+            software:
+                ipv4_address: 172.20.0.16
+
+    db:
+        image: postgres
+        environment:
+            POSTGRES_DB: lemoras-db
+            POSTGRES_USER: lemoras
+            POSTGRES_PASSWORD: supersecret
+        volumes:
+            - db-data:/var/lib/postgresql/data
+            - ./scripts/:/docker-entrypoint-initdb.d/
+        networks:
+            - "lemoras-remora-network"
+        container_name: db
+        restart: always 
